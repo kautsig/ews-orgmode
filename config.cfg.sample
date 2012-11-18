@@ -1,0 +1,8 @@
+[ews-orgmode]
+host=servername without protocol, e.g. your.exchange.host.org
+path=webservice path, e.g. /ews/Exchange.asmx
+username=username
+password=password
+timezone=Europe/Vienna
+days_history=7
+days_future=30

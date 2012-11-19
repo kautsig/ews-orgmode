@@ -4,6 +4,7 @@
 # http://blogs.msdn.com/b/exchangedev/archive/2009/02/05/quick-and-dirty-unix-shell-scripting-with-ews.aspx
 # http://ewsmacwidget.codeplex.com/
 
+import os
 from lxml import etree
 from datetime import datetime
 from datetime import date
@@ -16,7 +17,8 @@ import ConfigParser
 
 # Read the config file
 config = ConfigParser.RawConfigParser()
-config.read('config.cfg')
+dir = os.path.realpath(__file__)[:-21]
+config.read(dir + 'config.cfg')
 
 # Exchange user and password
 ewsHost = config.get('ews-orgmode', 'host')

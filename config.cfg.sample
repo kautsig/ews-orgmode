@@ -6,3 +6,4 @@ password=password
 timezone=Europe/Vienna
 days_history=7
 days_future=30
+max_entries=100

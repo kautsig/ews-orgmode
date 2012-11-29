@@ -4,6 +4,7 @@
 # http://blogs.msdn.com/b/exchangedev/archive/2009/02/05/quick-and-dirty-unix-shell-scripting-with-ews.aspx
 # http://ewsmacwidget.codeplex.com/
 
+import os
 from lxml import etree
 from datetime import datetime
 from datetime import date
@@ -16,7 +17,8 @@ import ConfigParser
 
 # Read the config file
 config = ConfigParser.RawConfigParser()
-config.read('config.cfg')
+dir = os.path.realpath(__file__)[:-21]
+config.read(dir + 'config.cfg')
 
 # Exchange user and password
 ewsHost = config.get('ews-orgmode', 'host')
@@ -26,6 +28,7 @@ ewsPassword = config.get('ews-orgmode', 'password')
 timezoneLocation = config.get('ews-orgmode', 'timezone')
 daysHistory = config.getint('ews-orgmode', 'days_history')
 daysFuture = config.getint('ews-orgmode', 'days_future')
+maxEntries = config.getint('ews-orgmode', 'max_entries')
 
 def parse_ews_date(dateStr):
   d = datetime.strptime(dateStr, "%Y-%m-%dT%H:%M:%SZ")
@@ -40,7 +43,7 @@ def format_orgmode_time(dateObj):
   return dateObj.strftime("%H:%M")
 
 # Helper function to write an orgmode entry
-def print_orgmode_entry(subject, start, end, location, displayTo):
+def print_orgmode_entry(subject, start, end, location):
   print "* " + subject
   startDate = parse_ews_date(start);
   endDate = parse_ews_date(end);
@@ -52,8 +55,6 @@ def print_orgmode_entry(subject, start, end, location, displayTo):
 
   if location is not None:
     print "Location: " + location.encode('utf-8')
-  if displayTo is not None:
-    print "To: " + displayTo.encode('utf-8')
 
   print ""
 
@@ -73,15 +74,15 @@ request = """<?xml version="1.0" encoding="utf-8"?>
   <soap:Body>
     <FindItem Traversal="Shallow" xmlns="http://schemas.microsoft.com/exchange/services/2006/messages">
       <ItemShape>
-        <t:BaseShape>AllProperties</t:BaseShape>
+        <t:BaseShape>Default</t:BaseShape>
       </ItemShape>
-      <CalendarView MaxEntriesReturned="20" StartDate="{0}T00:00:00-08:00" EndDate="{1}T00:00:00-08:00"/>
+      <CalendarView MaxEntriesReturned="{2}" StartDate="{0}T00:00:00-08:00" EndDate="{1}T00:00:00-08:00"/>
       <ParentFolderIds>
         <t:DistinguishedFolderId Id="calendar"/>
       </ParentFolderIds>
     </FindItem>
   </soap:Body>
-</soap:Envelope>""".format(start, end)
+</soap:Envelope>""".format(start, end, maxEntries)
 
 # Build authentication string, remove newline for using it in a http header
 auth = base64.encodestring("%s:%s" % (ewsUser, ewsPassword)).replace('\n', '')
@@ -119,5 +120,4 @@ for element in elements:
   location= element.find('{http://schemas.microsoft.com/exchange/services/2006/types}Location').text
   start = element.find('{http://schemas.microsoft.com/exchange/services/2006/types}Start').text
   end = element.find('{http://schemas.microsoft.com/exchange/services/2006/types}End').text
-  displayTo = element.find('{http://schemas.microsoft.com/exchange/services/2006/types}DisplayTo').text
-  print_orgmode_entry(subject, start, end, location, displayTo)
+  print_orgmode_entry(subject, start, end, location)

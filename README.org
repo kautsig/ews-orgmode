@@ -11,7 +11,7 @@
 
   : cd ews-orgmode
   : cp config.cfg.sample config.cfg
-  : vim config.cfg
+  : emacs config.cfg
 
   The config.cfg is within the .gitignore file, so you don't publish it by accident.
   Now, run the script:

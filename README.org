@@ -1,29 +1,29 @@
 * Overview
-  ews-orgmode is a python script to fetch your exchange calendar using exchange webservices and format it
-  into an orgmode readable format for using it in your orgmode agenda.
+ews-orgmode is a python script to fetch your exchange calendar using exchange webservices and format it
+into an orgmode readable format for using it in your orgmode agenda.
 
 * Installation
-  Clone the repository using:
+Clone the repository using:
 
-  : git clone http://github.com/kautsig/ews-orgmode.git
+: git clone http://github.com/kautsig/ews-orgmode.git
 
-  Change into the directory and create a config file:
+Change into the directory and create a config file:
 
-  : cd ews-orgmode
-  : cp config.cfg.sample config.cfg
-  : emacs config.cfg
+: cd ews-orgmode
+: cp config.cfg.sample config.cfg
+: emacs config.cfg
 
-  The config.cfg is within the .gitignore file, so you don't publish it by accident.
-  Now, run the script:
+The config.cfg is within the .gitignore file, so you don't publish it by accident.
+Now, run the script:
 
-  : ./ews-fetch-calendar.py
+: ./ews-fetch-calendar.py
 
-  If everythings ok, you should see your exchange calendar in orgmode format as console output. You 
-  can redirect it into an orgmode file for using in your agenda. E.g. you could  use something like this
-  in a cronjob:
+If everythings ok, you should see your exchange calendar in orgmode format as console output. You 
+can redirect it into an orgmode file for using in your agenda. E.g. you could  use something like this
+in a cronjob:
 
-  : ./ews-fetch-calendar.py > ~/org/exchange.org
+: ./ews-fetch-calendar.py > ~/org/exchange.org
 
 * Disclaimer
-  Use the script at your own risk. Read it, understand it, modify it. But do not
-  blame me if something goes wrong.
+Use the script at your own risk. Read it, understand it, modify it. But do not
+blame me if something goes wrong.

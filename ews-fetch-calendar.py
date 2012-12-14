@@ -56,8 +56,6 @@ def print_orgmode_entry(subject, start, end, location):
   if location is not None:
     print "Location: " + location.encode('utf-8')
 
-  print ""
-
 #Debug code
 #print_orgmode_entry("subject", "2012-07-27T11:10:53Z", "2012-07-27T11:15:53Z", "location", "participants")
 #exit(0)

@@ -44,7 +44,7 @@ def format_orgmode_time(dateObj):
 
 # Helper function to write an orgmode entry
 def print_orgmode_entry(subject, start, end, location):
-  print "* " + subject
+  print "* " + subject.encode('ascii', 'ignore')
   startDate = parse_ews_date(start);
   endDate = parse_ews_date(end);
   # Check if the appointment starts and ends on the same day and use proper formatting

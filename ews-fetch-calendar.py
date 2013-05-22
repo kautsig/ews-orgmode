@@ -44,19 +44,27 @@ def format_orgmode_time(dateObj):
 
 # Helper function to write an orgmode entry
 def print_orgmode_entry(subject, start, end, location):
-  print "* TODO " + subject.encode('ascii', 'ignore')
   startDate = parse_ews_date(start);
   endDate = parse_ews_date(end);
   # Check if the appointment starts and ends on the same day and use proper formatting
+  dateStr = ""
   if startDate.date() == endDate.date():
-    print "<" +  format_orgmode_date(startDate) + "-" + format_orgmode_time(endDate) + ">"
+    dateStr = "<" +  format_orgmode_date(startDate) + "-" + format_orgmode_time(endDate) + ">"
   else:
-    print "<" +  format_orgmode_date(startDate) + ">--<" + format_orgmode_date(endDate) + ">"
+    dateStr = "<" +  format_orgmode_date(startDate) + ">--<" + format_orgmode_date(endDate) + ">"
+
+  if subject is not None:
+    if dateStr != "":
+      print "* TODO " + dateStr + " " + subject.encode('ascii', 'ignore')
+    else:
+      print "* TODO " + subject.encode('ascii', 'ignore')
 
   if location is not None:
     print ":PROPERTIES:"
     print ":LOCATION: " + location.encode('utf-8')
     print ":END:"
+
+  print ""
 
 #Debug code
 #print_orgmode_entry("subject", "2012-07-27T11:10:53Z", "2012-07-27T11:15:53Z", "location", "participants")

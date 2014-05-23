@@ -43,7 +43,7 @@ def format_orgmode_time(dateObj):
   return dateObj.strftime("%H:%M")
 
 # Helper function to write an orgmode entry
-def print_orgmode_entry(subject, start, end, location):
+def print_orgmode_entry(subject, start, end, location, response):
   startDate = parse_ews_date(start);
   endDate = parse_ews_date(end);
   # Check if the appointment starts and ends on the same day and use proper formatting
@@ -55,13 +55,14 @@ def print_orgmode_entry(subject, start, end, location):
 
   if subject is not None:
     if dateStr != "":
-      print "* TODO " + dateStr + " " + subject.encode('ascii', 'ignore')
+      print "* " + dateStr + " " + subject.encode('ascii', 'ignore')
     else:
-      print "* TODO " + subject.encode('ascii', 'ignore')
+      print "* " + subject.encode('ascii', 'ignore')
 
   if location is not None:
     print ":PROPERTIES:"
     print ":LOCATION: " + location.encode('utf-8')
+    print ":RESPONSE: " + response.encode('utf-8')
     print ":END:"
 
   print ""
@@ -83,6 +84,9 @@ request = """<?xml version="1.0" encoding="utf-8"?>
     <FindItem Traversal="Shallow" xmlns="http://schemas.microsoft.com/exchange/services/2006/messages">
       <ItemShape>
         <t:BaseShape>Default</t:BaseShape>
+        <t:AdditionalProperties>
+          <t:FieldURI FieldURI="calendar:MyResponseType"/>
+        </t:AdditionalProperties>
       </ItemShape>
       <CalendarView MaxEntriesReturned="{2}" StartDate="{0}T00:00:00-08:00" EndDate="{1}T00:00:00-08:00"/>
       <ParentFolderIds>
@@ -128,4 +132,5 @@ for element in elements:
   location= element.find('{http://schemas.microsoft.com/exchange/services/2006/types}Location').text
   start = element.find('{http://schemas.microsoft.com/exchange/services/2006/types}Start').text
   end = element.find('{http://schemas.microsoft.com/exchange/services/2006/types}End').text
-  print_orgmode_entry(subject, start, end, location)
+  response = element.find('{http://schemas.microsoft.com/exchange/services/2006/types}MyResponseType').text
+  print_orgmode_entry(subject, start, end, location, response)

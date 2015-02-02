@@ -10,21 +10,34 @@ from datetime import datetime
 from datetime import date
 from datetime import timedelta
 from pytz import timezone
+from StringIO import StringIO
 import pytz
-import httplib
+import pycurl
 import base64
 import ConfigParser
 
 # Read the config file
-config = ConfigParser.RawConfigParser()
-dir = os.path.realpath(__file__)[:-21]
-config.read(dir + 'config.cfg')
+timezoneLocation = os.getenv('TZ', 'UTC')
+config = ConfigParser.RawConfigParser({
+  'path': '/ews/Exchange.asmx',
+  'username': '',
+  'password': '',
+  'auth_type': 'any',
+  'cainfo': '',
+  'timezone': timezoneLocation,
+  'days_history': 7,
+  'days_future': 30,
+  'max_entries': 100})
+dir = os.path.dirname(os.path.realpath(__file__))
+config.read(os.path.join(dir, 'config.cfg'))
 
 # Exchange user and password
 ewsHost = config.get('ews-orgmode', 'host')
 ewsUrl = config.get('ews-orgmode', 'path')
 ewsUser = config.get('ews-orgmode', 'username')
 ewsPassword = config.get('ews-orgmode', 'password')
+ewsAuthType = config.get('ews-orgmode', 'auth_type').lower()
+ewsCAInfo = config.get('ews-orgmode', 'cainfo')
 timezoneLocation = config.get('ews-orgmode', 'timezone')
 daysHistory = config.getint('ews-orgmode', 'days_history')
 daysFuture = config.getint('ews-orgmode', 'days_future')
@@ -95,21 +108,52 @@ request = """<?xml version="1.0" encoding="utf-8"?>
     </FindItem>
   </soap:Body>
 </soap:Envelope>""".format(start, end, maxEntries)
+request_len = len(request)
+request = StringIO(request)
+# Debug code
+# print request.getvalue()
+# exit(0)
 
-# Build authentication string, remove newline for using it in a http header
-auth = base64.encodestring("%s:%s" % (ewsUser, ewsPassword)).replace('\n', '')
-conn = httplib.HTTPSConnection(ewsHost)
-conn.request("POST", ewsUrl, body = request, headers = {
-  "Host": ewsHost,
-  "Content-Type": "text/xml; charset=UTF-8",
-  "Content-Length": len(request),
-  "Authorization" : "Basic %s" % auth
-})
+h = []
+h.append('Content-Type: text/xml; charset=UTF-8')
+h.append('Content-Length: %d' % request_len);
+
+header = StringIO()
+body = StringIO()
+
+c = pycurl.Curl()
+# Debug code
+c.setopt(c.VERBOSE, 1)
+
+c.setopt(c.URL, 'https://%s%s' % (ewsHost, ewsUrl))
+c.setopt(c.POST, 1)
+c.setopt(c.HTTPHEADER, h)
+
+if ewsAuthType == 'digest':
+  c.setopt(c.HTTPAUTH, c.HTTPAUTH_DIGEST)
+elif ewsAuthType == 'basic':
+  c.setopt(c.HTTPAUTH, c.HTTPAUTH_BASIC)
+elif ewsAuthType == 'ntlm':
+  c.setopt(c.HTTPAUTH, c.HTTPAUTH_NTLM)
+elif ewsAuthType == 'negotiate':
+  c.setopt(c.HTTPAUTH, c.HTTPAUTH_GSSNEGOTIATE)
+elif ewsAuthType == 'any':
+  c.setopt(c.HTTPAUTH, c.HTTPAUTH_ANYSAFE)
+c.setopt(c.USERPWD, '%s:%s' % (ewsUser, ewsPassword))
+
+if len(ewsCAInfo) > 0:
+  c.setopt(c.CAINFO, ewsCAInfo)
+
+# http://stackoverflow.com/questions/27808835/fail-to-assign-io-object-to-writedata-pycurl
+c.setopt(c.WRITEFUNCTION, body.write)
+c.setopt(c.HEADERFUNCTION, header.write)
+c.setopt(c.READFUNCTION, request.read)
+
+c.perform()
+c.close()
 
 # Read the webservice response
-resp = conn.getresponse()
-data = resp.read()
-conn.close()
+data = body.getvalue()
 
 # Debug code
 # print data

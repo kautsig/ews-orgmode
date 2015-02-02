@@ -13,6 +13,24 @@ Change into the directory and create a config file:
 : cp config.cfg.sample config.cfg
 : emacs config.cfg
 
+The only mandatory field of the configuration file is 'host', pointing
+to your server. Other fields have somewhat sane values that should fit
+your needs.
+
++ host - server name without protocol, e.g. your.exchange.host.org.
++ path - web-service path, defaults to e.g. /ews/Exchange.asmx.
++ username - user's name for HTTP authentications, may be omitted in
+  some situations (e.g. with GSSAPI).
++ password - password for HTTP authentications.
++ auth_type - One of: 'any', 'basic', 'digest', 'ntlm',
+  'negotiate'. 'any' makes the choice automatically and chooses any of
+  the mechanisms provided by a server except 'Basic. This one has enabled explicitly.
++ cainfo - file holding certificate used to sign server key.
++ timezone - Your time zone e.g. Europe/Vienna, defaults to UTC.
++ days_history - How old entries to fetch.
++ days_future - How long in the future to look for entries.
++ max_entries - How many entries to fetch.
+
 The config.cfg is within the .gitignore file, so you don't publish it by accident.
 Now, run the script:
 

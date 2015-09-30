@@ -172,9 +172,34 @@ namespaces = {
 # Print calendar elements
 elements = root.xpath(xpathStr, namespaces=namespaces)
 for element in elements:
-  subject= element.find('{http://schemas.microsoft.com/exchange/services/2006/types}Subject').text
-  location= element.find('{http://schemas.microsoft.com/exchange/services/2006/types}Location').text
-  start = element.find('{http://schemas.microsoft.com/exchange/services/2006/types}Start').text
-  end = element.find('{http://schemas.microsoft.com/exchange/services/2006/types}End').text
-  response = element.find('{http://schemas.microsoft.com/exchange/services/2006/types}MyResponseType').text
+  subjectElem = element.find('{http://schemas.microsoft.com/exchange/services/2006/types}Subject')
+  if subjectElem is not None:
+    subject = subjectElem.text
+  else:
+    subject = ""
+
+  locationElem = element.find('{http://schemas.microsoft.com/exchange/services/2006/types}Location')
+  if locationElem is not None:
+    location = locationElem.text
+  else:
+    location = ""
+
+  startElem = element.find('{http://schemas.microsoft.com/exchange/services/2006/types}Start')
+  if startElem is not None:
+    start = startElem.text
+  else:
+    start = ""
+
+  endElem = element.find('{http://schemas.microsoft.com/exchange/services/2006/types}End')
+  if endElem is not None:
+    end = endElem.text
+  else:
+    end = ""
+
+  responseElem = element.find('{http://schemas.microsoft.com/exchange/services/2006/types}MyResponseType')
+  if responseElem is not None:
+    response = responseElem.text
+  else:
+    response = ""
+
   print_orgmode_entry(subject, start, end, location, response)
